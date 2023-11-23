@@ -7,9 +7,10 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-
 
 public class SecureDistriMap {
     private int id;
@@ -27,33 +28,27 @@ public class SecureDistriMap {
         this.map = new HashMap<>();
     }
 
-    /**
-     * distriMap
-     *
-     * @param id       id
-     * @param filePath 文件路径
-     */
     public SecureDistriMap(int id, String filePath) {
         this.id = id;
         this.num = 0;
         this.map = new HashMap<>();
+        loadFromFile(filePath);
+    }
 
+
+    //构造函数，输入id，路径以及安全内积计算器
+    public SecureDistriMap(int id, String filePath, SecureInnerProductCalculator secureInnerProductCalculator) {
+        this.id = id;
+        this.num = 0;
+        this.map = new HashMap<>();
+        loadFromFile(filePath, secureInnerProductCalculator);
+    }
+
+    private void loadFromFile(String filePath) {
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
             String line;
-
             while ((line = br.readLine()) != null) {
-
-                String[] parts = line.split(",");
-                if (parts.length == 3) {
-                    //System.out.println("aaa");
-                    int x = Integer.parseInt(parts[0]);
-                    int y = Integer.parseInt(parts[1]);
-                    float value = Float.parseFloat(parts[2]);
-                    DensityVector densityVector = new DensityVector(value,resolution);
-                    //DensityVector.printVector(density);
-                    addToMap(x, y, densityVector);
-                    num++;
-                }
+                processLine(line);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -61,34 +56,41 @@ public class SecureDistriMap {
         this.map.toString();
     }
 
-
-    public SecureDistriMap(int id, String filePath, SecureInnerProductCalculator secureInnerProductCalculator) {
-        this.id = id;
-        this.num = 0;
-        this.map = new HashMap<>();
-
+    private void loadFromFile(String filePath, SecureInnerProductCalculator secureInnerProductCalculator) {
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
             String line;
-
             while ((line = br.readLine()) != null) {
-
-                String[] parts = line.split(",");
-                if (parts.length == 3) {
-                    //System.out.println("aaa");
-                    int x = Integer.parseInt(parts[0]);
-                    int y = Integer.parseInt(parts[1]);
-                    float value = Float.parseFloat(parts[2]);
-                    DensityVector densityVector = new DensityVector(value,resolution);
-                    densityVector.setDensityVector(secureInnerProductCalculator.multiplyWithKeyMatrix(densityVector.getDensityVector()));
-                    //DensityVector.printVector(density);
-                    addToMap(x, y, densityVector);
-                    num++;
-                }
+                processLine(line, secureInnerProductCalculator);
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
         this.map.toString();
+    }
+
+    private void processLine(String line) {
+        String[] parts = line.split(",");
+        if (parts.length == 3) {
+            int x = Integer.parseInt(parts[0]);
+            int y = Integer.parseInt(parts[1]);
+            float value = Float.parseFloat(parts[2]);
+            DensityVector densityVector = new DensityVector(value, resolution);
+            addToMap(x, y, densityVector);
+            num++;
+        }
+    }
+
+    private void processLine(String line, SecureInnerProductCalculator secureInnerProductCalculator) {
+        String[] parts = line.split(",");
+        if (parts.length == 3) {
+            int x = Integer.parseInt(parts[0]);
+            int y = Integer.parseInt(parts[1]);
+            float value = Float.parseFloat(parts[2]);
+            DensityVector densityVector = new DensityVector(value, resolution);
+            densityVector.setDensityVector(secureInnerProductCalculator.encryptVector(densityVector.getDensityVector(), true));
+            addToMap(x, y, densityVector);
+            num++;
+        }
     }
 
     public void printMap() {
@@ -100,32 +102,25 @@ public class SecureDistriMap {
             DensityVector densityVector = entry.getValue();
             System.out.println("Key: " + key.toString() + ", Value: ");
             DensityVector.printVector(densityVector.getDensityVector());
-            //key.printByteArray(key.intToBytes(key.hashCode()));
         }
     }
 
-    public int getId(){
+    public int getId() {
         return this.id;
     }
 
-    public int getNum(){
+    public int getNum() {
         return this.num;
     }
-
-
 
     public void addToMap(int x, int y, DensityVector value) {
         Pair pair = new Pair(x, y);
         map.put(pair, value);
     }
 
-
-
     public Map<Pair, DensityVector> getMap() {
         return map;
     }
-
-    // Getter and Setter methods for id and num
 
     public static class Pair {
         private int x;
@@ -140,13 +135,8 @@ public class SecureDistriMap {
         public int hashCode() {
             String binaryX = Integer.toBinaryString(x);
             String binaryY = Integer.toBinaryString(y);
-            //System.out.println(binaryX + " " + binaryY);
-
-            String combinedBinary = binaryX + "|" + binaryY;  // 添加分隔符
-
-            // 将二进制编码转换为整数哈希码
+            String combinedBinary = binaryX + "|" + binaryY;
             int hash = combinedBinary.hashCode();
-
             return hash;
         }
 
@@ -177,9 +167,20 @@ public class SecureDistriMap {
 
         @Override
         public String toString() {
-            //printByteArray(intToBytes(hashCode()));
-            return "x = " + this.x + ", y = " + y + ", hashCode = " + hashCode() ;
+            return "x = " + this.x + ", y = " + y + ", hashCode = " + hashCode();
         }
     }
-}
 
+    public static List<SecureDistriMap> createSecureDistriMaps(String directoryPath, int number) {
+        List<SecureDistriMap> secureDistriMaps = new ArrayList<>();
+
+        for (int i = 1; i <= number; i++) {
+            String filePath = directoryPath + "/distribution_" + i + ".txt";
+            SecureDistriMap secureDistriMap = new SecureDistriMap(secureDistriMaps.size(), filePath);
+            secureDistriMaps.add(secureDistriMap);
+        }
+
+        return secureDistriMaps;
+    }
+
+}

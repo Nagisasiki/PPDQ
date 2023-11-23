@@ -1,5 +1,7 @@
 package Methods.PPDQ;
 
+import Methods.EPDS.VectorOperations200;
+
 public class DensityVector {
 
     private double[] densityVector;
@@ -29,6 +31,7 @@ public class DensityVector {
     }
 
     public static void printVector(double[] densityVector){
+        System.out.println("density vector :" );
         for (int i=0; i<densityVector.length; i++){
             System.out.print(densityVector[i] + ", ");;
         }
@@ -45,6 +48,8 @@ public class DensityVector {
             result += vector1[i] * vector2[i];
         }
 
+        VectorOperations200.calculateDotProduct();
+
         return result;
     }
 
@@ -59,6 +64,8 @@ public class DensityVector {
         for (int i = 0; i < v1.length; i++) {
             result += v1[i] * v2[i];
         }
+
+        VectorOperations200.calculateDotProduct();
 
         return result;
     }

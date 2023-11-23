@@ -51,6 +51,37 @@ public class Dataset {
         }*/
     }
 
+    public Dataset(String name, String path, int number) {
+        this.name = name;
+        this.distriMaps = new ArrayList<>();
+
+        File folder = new File(path);
+        File[] files = folder.listFiles();
+
+        /*for (File file : files){
+            String str = file.getAbsolutePath();
+            System.out.println(str);
+        }*/
+
+        for (int i=1; i<=number; i++){
+            String absolutePath = path + "\\Distribution_" + i + ".txt";
+            DistriMap distriMap = new DistriMap(i, absolutePath);
+            distriMaps.add(distriMap);
+        }
+
+        /*if (files != null) {
+            int id = 0;
+
+            for (File file : files) {
+                if (file.isFile()) {
+                    DistriMap distriMap = new DistriMap(id, file.getAbsolutePath());
+                    distriMaps.add(distriMap);
+                    id++;
+                }
+            }
+        }*/
+    }
+
     public void printDataset() {
         System.out.println("Dataset Name: " + name);
         System.out.println("Number of DistriMaps: " + distriMaps.size());

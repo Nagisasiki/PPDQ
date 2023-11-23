@@ -46,7 +46,7 @@ public class SecureGenQuery {
         for (Map.Entry<SecureDistriMap.Pair,DensityVector> entry : map.entrySet()){
             SecureDistriMap.Pair key = entry.getKey();
             DensityVector densityVector = entry.getValue();
-            densityVector.setDensityVector(secureInnerProductCalculator.multiplyInverseKeyMatrixWithVector(densityVector.getDensityVector()));
+            densityVector.setDensityVector(secureInnerProductCalculator.encryptVector(densityVector.getDensityVector(),false));
             Index index = new Index(numHashFunctions, key);
             query.put(index,densityVector);
         }

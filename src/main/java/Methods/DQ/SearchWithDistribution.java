@@ -21,6 +21,7 @@ public class SearchWithDistribution {
      */
     public static float calculateSimilarity(DistriMap a, DistriMap b) {
         BigDecimal similarity = BigDecimal.ZERO;
+        int i=0;
 
         Map<DistriMap.Pair, Float> mapA = a.getMap();
         Map<DistriMap.Pair, Float> mapB = b.getMap();
@@ -35,8 +36,10 @@ public class SearchWithDistribution {
                 BigDecimal bdValueB = BigDecimal.valueOf(valueB);
                 BigDecimal minValue = bdValueA.min(bdValueB);
                 similarity = similarity.add(minValue);
+                i++;
             }
         }
+        //System.out.println("计算次数" + i);
 
         return similarity.floatValue();
     }
@@ -107,17 +110,90 @@ public class SearchWithDistribution {
     public static void topkSearch(Dataset dataset, int queryId, int k) {
         DistriMap queryDistriMap = dataset.getDistriMap(queryId);
 
-        Map<Integer, Float> similarityMap = new HashMap<>();
+        Map<Integer, Double> similarityMap = new HashMap<>();
 
-        for (int i = 0; i < dataset.getDistriMaps().size(); i++) {
+        for (int i = 1; i <= dataset.getDistriMaps().size(); i++) {
             if (i != queryId) {
                 DistriMap distriMap = dataset.getDistriMap(i);
-                float similarity = calculateSimilarity(queryDistriMap, distriMap);
+                double similarity = calculateSimilarity(queryDistriMap, distriMap);
                 similarityMap.put(i, similarity);
             }
         }
 
-        List<Map.Entry<Integer, Float>> sortedSimilarityList = new ArrayList<>(similarityMap.entrySet());
+        List<Map.Entry<Integer, Double>> sortedSimilarityList = new ArrayList<>(similarityMap.entrySet());
+        sortedSimilarityList.sort((e1, e2) -> Double.compare(e2.getValue(), e1.getValue()));
+
+        /*System.out.println("Query ID: " + queryId);
+        System.out.println("Top " + k + " similar items:");
+
+        int count = 0;
+        for (Map.Entry<Integer, Float> entry : sortedSimilarityList) {
+            if (count >= k) {
+                break;
+            }
+
+            int id = entry.getKey();
+            float similarity = entry.getValue();
+            System.out.println("数据集 ID: " + id + "   " + "相似度: " + similarity);
+            count++;
+        }*/
+    }
+
+    public static List<Map.Entry<Integer, Double>> topkSearchReturn(Dataset dataset, int queryId, int k) {
+        DistriMap queryDistriMap = dataset.getDistriMap(queryId);
+
+        Map<Integer, Double> similarityMap = new HashMap<>();
+
+        for (int i = 1; i <= dataset.getDistriMaps().size(); i++) {
+            if (i != queryId) {
+                DistriMap distriMap = dataset.getDistriMap(i);
+                double similarity = calculateSimilarity(queryDistriMap, distriMap);
+                similarityMap.put(i, similarity);
+            }
+        }
+
+        List<Map.Entry<Integer, Double>> sortedSimilarityList = new ArrayList<>(similarityMap.entrySet());
+        sortedSimilarityList.sort((e1, e2) -> Double.compare(e2.getValue(), e1.getValue()));
+
+        /*System.out.println("Query ID: " + queryId);
+        System.out.println("Top " + k + " similar items:");
+
+        int count = 0;
+        for (Map.Entry<Integer, Double> entry : sortedSimilarityList) {
+            if (count >= k) {
+                break;
+            }
+
+            int id = entry.getKey();
+            double similarity = entry.getValue();
+            System.out.println("数据集 ID: " + id + "   " + "相似度: " + similarity);
+            count++;
+        }*/
+        return sortedSimilarityList;
+    }
+
+
+    public static void topkSearch(Dataset dataset, int queryId, int k, List<Map.Entry<Integer, Float>> sortedSimilarityList) {
+        System.out.println("mmmmmmmmmmmmmmm");
+        DistriMap queryDistriMap = dataset.getDistriMap(queryId);
+
+        Map<Integer, Float> similarityMap = new HashMap<>();
+
+        System.out.println("aaaaaa");
+
+        for (int i = 1; i <= dataset.getDistriMaps().size(); i++) {
+                DistriMap distriMap = dataset.getDistriMap(i);
+                float similarity = calculateSimilarity(queryDistriMap, distriMap);
+                similarityMap.put(i, similarity);
+        }
+
+
+
+        System.out.println("bbbbb");
+
+        for (Map.Entry<Integer,Float> entry : similarityMap.entrySet()){
+            sortedSimilarityList.add(entry);
+        }
         sortedSimilarityList.sort((e1, e2) -> Float.compare(e2.getValue(), e1.getValue()));
 
         System.out.println("Query ID: " + queryId);

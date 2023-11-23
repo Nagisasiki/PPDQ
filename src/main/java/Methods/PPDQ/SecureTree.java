@@ -126,13 +126,13 @@ public class SecureTree {
 
         SecureTree.similarSearchWithTree(root,secureGenQuery,priorityQueue);
 
-        int count = 0;
+        /*int count = 0;
 
         while (!priorityQueue.isEmpty() && count <= k) {
             Pair pair = priorityQueue.poll();
             System.out.println("id= " + pair.getId() + ", similar= " + pair.getSimilar());
             count++;
-        }
+        }*/
 
 
     }

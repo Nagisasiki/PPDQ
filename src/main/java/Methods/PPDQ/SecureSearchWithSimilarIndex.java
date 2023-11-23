@@ -105,6 +105,40 @@ public class SecureSearchWithSimilarIndex {
         List<Map.Entry<Integer, Float>> sortedSimilarityList = new ArrayList<>(similarMap.entrySet());
         sortedSimilarityList.sort((e1, e2) -> Float.compare(e2.getValue(), e1.getValue()));
 
+        /*System.out.println("查询数据集Id：" + secureGenQuery.getId());
+        System.out.println("相似度：");*/
+
+        /*int count = 0;
+        for (Map.Entry<Integer, Float> entry : sortedSimilarityList) {
+            if (count >= k) {
+                break;
+            }
+
+            int id = entry.getKey();
+            float similarity = entry.getValue();
+            System.out.println("数据集 ID: " + id + "   " + "相似度: " + similarity);
+            count++;
+        }*/
+    }
+
+    public static void topKsearchWithIndex(ArrayList<SecureSimilarIndex> secureSimilarIndices, SecureGenQuery secureGenQuery, int k, List<Map.Entry<Integer, Float>> sortedSimilarityList) throws NoSuchAlgorithmException, InvalidKeyException, InterruptedException {
+        Map<Integer, Float> similarMap = new HashMap<>();
+        sortedSimilarityList.clear();
+
+        for(SecureSimilarIndex secureSimilarIndex : secureSimilarIndices){
+            //long stime = System.nanoTime();
+            float simiilar = SecureSearchWithSimilarIndex.searchWithIndex(secureSimilarIndex, secureGenQuery);
+
+            similarMap.put(secureSimilarIndex.getId(),simiilar);
+
+            //long etime = System.nanoTime();
+            //System.err.println( "过滤器查询时间：" + (etime - stime));
+        }
+        for (Map.Entry<Integer,Float> entry : similarMap.entrySet()){
+            sortedSimilarityList.add(entry);
+        }
+        sortedSimilarityList.sort((e1, e2) -> Float.compare(e2.getValue(), e1.getValue()));
+
         System.out.println("查询数据集Id：" + secureGenQuery.getId());
         System.out.println("相似度：");
 
@@ -120,4 +154,6 @@ public class SecureSearchWithSimilarIndex {
             count++;
         }
     }
+
+
 }

@@ -10,8 +10,8 @@ public class TestInnerProduct {
 
         SecureInnerProductCalculator secureInnerProductCalculator = new SecureInnerProductCalculator(200);
 
-        densityVector1.setDensityVector(secureInnerProductCalculator.multiplyWithKeyMatrix(densityVector1.getDensityVector()));
-        densityVector2.setDensityVector(secureInnerProductCalculator.multiplyInverseKeyMatrixWithVector(densityVector2.getDensityVector()));
+        densityVector1.setDensityVector(secureInnerProductCalculator.encryptVector(densityVector1.getDensityVector(),true));
+        densityVector2.setDensityVector(secureInnerProductCalculator.encryptVector(densityVector2.getDensityVector(),false ));
 
 
         DensityVector.printVector(densityVector1.getDensityVector());

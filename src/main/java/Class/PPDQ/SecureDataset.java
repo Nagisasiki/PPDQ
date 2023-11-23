@@ -87,6 +87,48 @@ public class SecureDataset {
         }*/
     }
 
+
+    public SecureDataset(String name, String path, SecureInnerProductCalculator secureInnerProductCalculator, int number) {
+        this.name = name;
+        this.secureDistriMaps = new ArrayList<>();
+        int flag=0;
+        int a =0;
+
+        File folder = new File(path);
+        File[] files = folder.listFiles();
+
+        /*for (File file : files){
+            String str = file.getAbsolutePath();
+            System.out.println(str);
+        }*/
+
+        for (int i=1; i<=number; i++){
+            String absolutePath = path + "\\Distribution_" + i + ".txt";
+            SecureDistriMap secureDistriMap = new SecureDistriMap(i, absolutePath, secureInnerProductCalculator);
+            secureDistriMaps.add(secureDistriMap);
+            flag++;
+
+            if(flag == 100){
+                a++;
+                System.out.println("已将：" + a*100 + "个数据集转化为分布");
+                flag = 0;
+            }
+        }
+
+
+        /*if (files != null) {
+            int id = 0;
+
+            for (File file : files) {
+                if (file.isFile()) {
+                    DistriMap distriMap = new DistriMap(id, file.getAbsolutePath());
+                    distriMaps.add(distriMap);
+                    id++;
+                }
+            }
+        }*/
+    }
+
     public void printDataset() {
         System.out.println("Dataset Name: " + name);
         System.out.println("Number of DistriMaps: " + secureDistriMaps.size());
